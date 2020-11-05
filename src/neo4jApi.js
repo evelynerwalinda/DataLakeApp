@@ -1,16 +1,18 @@
 require('file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
 var _ = require('lodash');
 
+var neo4j = window.neo4j.v1;
 var pwd = require("../store-password.json")
 //var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', 'ptut2020'));
 var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', pwd));
 
 
-function getUser(title) {
+function getUser() {
   var session = driver.session();
+  console.log('début session')
   return session
     .run(
-      "MATCH (n:User) RETURN n LIMIT 25", {lastName})
+      "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n")
     .then(result => {
       if (_.isEmpty(result.records))
         return null;
