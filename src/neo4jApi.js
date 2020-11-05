@@ -1,12 +1,32 @@
 require('file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
-var Movie = require('./models/Movie');
-var MovieCast = require('./models/MovieCast');
 var _ = require('lodash');
 
-var neo4j = window.neo4j.v1;
-var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "abcde"));
+var pwd = require("../store-password.json")
+//var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', 'ptut2020'));
+var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', pwd));
 
-function searchMovies(queryString) {
+
+function getUser(title) {
+  var session = driver.session();
+  return session
+    .run(
+      "MATCH (n:User) RETURN n LIMIT 25", {lastName})
+    .then(result => {
+      if (_.isEmpty(result.records))
+        return null;
+
+      var record = result.records[0];
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+exports.getUser = getUser;
+
+/*function searchMovies(queryString) {
   var session = driver.session();
   return session
     .run(
@@ -90,4 +110,4 @@ function getGraph() {
 
 exports.searchMovies = searchMovies;
 exports.getMovie = getMovie;
-exports.getGraph = getGraph;
+exports.getGraph = getGraph;*/
