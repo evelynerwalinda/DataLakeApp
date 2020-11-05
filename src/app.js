@@ -1,12 +1,16 @@
 var api = require('./neo4jApi');
 
-function showUser(lastName) {
+$(function(){
+  showUser()
+})
+
+function showUser() {
   api
-    .getUser(lastName)
+    .getUser()
     .then(user => {
       if (!user) return;
-
-      $("#lastName").text(user.lastName);
+      console.log('user : ' + user.properties.lastName)
+      $("#lastName").text(user.properties.lastName);
     }, "json");
 }
 

@@ -3,8 +3,7 @@ var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
 var pwd = require("../store-password.json")
-//var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', 'ptut2020'));
-var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic('neo4j', pwd));
+var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", pwd.password));
 
 
 function getUser() {
@@ -12,12 +11,12 @@ function getUser() {
   console.log('début session')
   return session
     .run(
-      "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n")
+      "MATCH (n:User) WHERE n.lastName = $lastName RETURN n",
+      {lastName: 'SMITH'})
     .then(result => {
-      if (_.isEmpty(result.records))
-        return null;
-
-      var record = result.records[0];
+      console.log('recuperation resultat requete')
+      //console.log('results : ' + result.records[0].get('n'))
+      return result.records[0].get('n')
     })
     .catch(error => {
       throw error;
