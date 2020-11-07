@@ -1,7 +1,13 @@
 var api = require('./neo4jApi');
 
 $(function(){
-  showUser()
+  //showUser()
+  search()
+
+  $("#search").submit(e => {
+    e.preventDefault();
+    search();
+  });
 })
 
 function showUser() {
@@ -11,6 +17,34 @@ function showUser() {
       if (!user) return;
       console.log('user : ' + user.properties.lastName)
       $("#lastName").text(user.properties.lastName);
+    }, "json");
+}
+
+
+function search() {
+  var query = $("#search").find("input[name=search]").val();
+  console.log("requete : " + query)
+  api
+    .getProcess(query)
+    .then(p => {
+      if(!p) return;
+      showProcess(query)
+    })
+}
+
+function showProcess(query){
+  api
+    .getProcess(query)
+    .then(p => {
+      if (p) {
+        var $list = $("#names").empty();
+        for(var i=0; i< p.length; i++){
+          console.log('item : ' + p[i].name)
+          
+          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          //$("#name").text(p[i].name);
+        }
+      }         
     }, "json");
 }
 

@@ -1,4 +1,5 @@
 require('file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
+var Process = require('./models/Process');
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
@@ -25,7 +26,30 @@ function getUser() {
       return session.close();
     });
 }
+
+function getProcess(query){
+  var session = driver.session();
+  console.log('début session process')
+  console.log(query)
+  return session
+    .run(
+      "MATCH p=()-[r:hasTag]->(t :Tag {name: $name}) RETURN p",
+      {name: query})
+    .then(result => {
+    return result.records.map(record => {
+      return new Process(record.get('p').start);
+    });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 exports.getUser = getUser;
+exports.getProcess = getProcess;
 
 /*function searchMovies(queryString) {
   var session = driver.session();
