@@ -6,7 +6,8 @@
   "license": "PRIVATE",
   "dependencies": {
     "lodash": "^4.15.0",
-    "neo4j-driver": "^1.7.7"
+    "neo4j-driver": "^1.7.7",
+    "neovis.js": "^1.5.0"
   },
   "devDependencies": {
     "css-loader": "^5.0.0",
