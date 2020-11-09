@@ -2,7 +2,7 @@ var api = require('./neo4jApi');
 var pwd = require("../store-password.json")
 var viz;
 var cypher;
-$(function(){
+$(function () {
   //showUser()
   search()
   draw()
@@ -12,8 +12,8 @@ $(function(){
     search();
   });
 
-  $("#reload").click(function() {
-  
+  /*$("#reload").click(function () {
+
     cypher = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE t.name ='".concat("", ($("#search").find("input[name=search]").val()).toString()).concat("", "' RETURN p,r,t");
     console.log(cypher.length);
     console.log(cypher);
@@ -22,19 +22,45 @@ $(function(){
     } else {
       console.log("reload");
       viz.reload();
-  
+
     }
-  
-  });
-  var tags = []
-  $('#add').click(function(){
-    tag = document.getElementsByName('search')[0].value
-    tags.push(tag)
-    console.log(tags)
-    api.getProcesses(tags)
+
+  });*/
+
+  var tagsinput = $('#tagsinput').tagsinput('items');
+
+  $("#tagsinput").on('itemAdded', function (event) {
+    console.log('item added : ' + event.item);
+    console.log('tagsinput : ' + tagsinput)
+
+    //api.getProcesses(tagsinput)
+
+    var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
+    for (var i = 0; i < tagsinput.length; i++) {
+      if (i != tagsinput.length - 1) {
+        query = query + "t.name = '" + tagsinput[i] + "' OR "
+      }
+      else {
+        query = query + "t.name = '" + tagsinput[i] + "'"
+      }
+    }
+    query = query + " RETURN p"
+    console.log('requete : ' + query)
+
+
+    console.log(query.length);
+    console.log(query);
+    if (query.length > 3) {
+      viz.renderWithCypher(query);
+    } else {
+      console.log("reload");
+      viz.reload();
+    }
+
   });
 
-})
+});
+
 
 
 
@@ -77,19 +103,19 @@ function showProcess(query) {
 }
 
 function draw() {
-   var config = {
-      container_id: "viz",
-      server_url: "bolt://localhost",
-      server_user: "neo4j",
-      server_password: pwd.password,
-      labels: {
-          "Troll": {
-              caption: "user_key",
-              size: "pagerank",
-              community: "community"
-          }
-      },
-      initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
+  var config = {
+    container_id: "viz",
+    server_url: "bolt://localhost",
+    server_user: "neo4j",
+    server_password: pwd.password,
+    labels: {
+      "Troll": {
+        caption: "user_key",
+        size: "pagerank",
+        community: "community"
+      }
+    },
+    initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
   }
 
   viz = new NeoVis.default(config);

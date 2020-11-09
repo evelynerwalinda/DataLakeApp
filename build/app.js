@@ -17213,6 +17213,7 @@ module.exports = Process;
   \*************************/
 /*! default exports */
 /*! export getProcess [provided] [no usage info] [missing usage info prevents renaming] */
+/*! export getProcesses [provided] [no usage info] [missing usage info prevents renaming] */
 /*! export getUser [provided] [no usage info] [missing usage info prevents renaming] */
 /*! other exports [not provided] [no usage info] */
 /*! runtime requirements: __webpack_exports__, __webpack_require__ */
@@ -17268,8 +17269,40 @@ function getProcess(query) {
     });
 }
 
+function getProcesses(tags) {
+  var session = driver.session();
+  console.log('début session plusieurs process')
+  console.log('tags : ' + tags)
+  var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
+  for(var i=0; i<tags.length; i++){
+    if(i!=tags.length -1){
+      query = query + "t.name = '" + tags[i] + "' OR "
+    }
+    else{
+      query = query + "t.name = '" + tags[i] + "'"
+    }
+  }
+  query = query + " RETURN p"
+  console.log('requete : ' + query)
+  return session
+    .run(
+      query)
+    .then(result => {
+      return result.records.map(record => {
+        return new Process(record.get('p').start);
+      });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 exports.getUser = getUser;
 exports.getProcess = getProcess;
+exports.getProcesses = getProcesses;
 
 /*function searchMovies(queryString) {
   var session = driver.session();
@@ -17371,7 +17404,7 @@ exports.getGraph = getGraph;*/
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"password\":\"PTUT5A\"}");
+module.exports = JSON.parse("{\"password\":\"ptut2020\"}");
 
 /***/ })
 
@@ -17481,7 +17514,9 @@ module.exports = JSON.parse("{\"password\":\"PTUT5A\"}");
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements: __webpack_require__ */
 var api = __webpack_require__(/*! ./neo4jApi */ "./src/neo4jApi.js");
-
+var pwd = __webpack_require__(/*! ../store-password.json */ "./store-password.json")
+var viz;
+var cypher;
 $(function(){
   //showUser()
   search()
@@ -17491,7 +17526,35 @@ $(function(){
     e.preventDefault();
     search();
   });
+
+  $("#reload").click(function() {
+  
+    cypher = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE t.name ='".concat("", ($("#search").find("input[name=search]").val()).toString()).concat("", "' RETURN p,r,t");
+    console.log(cypher.length);
+    console.log(cypher);
+    if (cypher.length > 3) {
+      viz.renderWithCypher(cypher);
+    } else {
+      console.log("reload");
+      viz.reload();
+  
+    }
+  
+  });
+  var tags = []
+  $('#add').click(function(){
+    tag = document.getElementsByName('search')[0].value
+    tags.push(tag)
+    console.log(tags)
+    api.getProcesses(tags)
+  });
+
+  $('.mdb-select').materialSelect({
+  });
+
 })
+
+
 
 function showUser() {
   api
@@ -17510,25 +17573,45 @@ function search() {
   api
     .getProcess(query)
     .then(p => {
-      if(!p) return;
+      if (!p) return;
       showProcess(query)
     })
 }
 
-function showProcess(query){
+function showProcess(query) {
   api
     .getProcess(query)
     .then(p => {
       if (p) {
         var $list = $("#names").empty();
-        for(var i=0; i< p.length; i++){
+        for (var i = 0; i < p.length; i++) {
           console.log('item : ' + p[i].name)
-          
+
           $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
           //$("#name").text(p[i].name);
         }
-      }         
+      }
     }, "json");
+}
+
+function draw() {
+   var config = {
+      container_id: "viz",
+      server_url: "bolt://localhost",
+      server_user: "neo4j",
+      server_password: pwd.password,
+      labels: {
+          "Troll": {
+              caption: "user_key",
+              size: "pagerank",
+              community: "community"
+          }
+      },
+      initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
+  }
+
+  viz = new NeoVis.default(config);
+  viz.render();
 }
 
 /*$(function () {
