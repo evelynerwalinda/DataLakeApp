@@ -21,9 +21,9 @@
                         <form role="search" class="navbar-form" id="search">
                             <div class="form-group">
                                 <input type="text" placeholder="Enter one or multiple keywords" class="form-control"
-                                    name="search" style="width: 300px;">
+                                    name="search" style="width: 300px;" >
                             </div>
-                            <button class="btn btn-default" type="submit">Search</button>
+                            <button class="btn btn-default" type="submit" id="reload">Search</button>
                         </form>
                     </li>
                 </ul>
@@ -52,13 +52,9 @@
         </div>
         <div class="col-md-7">
             <div class="panel panel-default">
-                <div class="panel-heading" id="title">Details</div>
-                <div class="row">
-                    <div class="col-sm-4 col-md-4">
-                        <img src="" class="well" id="poster" />
-                    </div>
-                    <div class="col-md-8 col-sm-8">
-                        <h4>Crew</h4>
+                <div class="panel-heading" id="title">Graph</div>
+                <div class="row"></div>
+                    <div class="col-md-12 col-sm-12 mw-100">
                         <div id="viz"></div>
                     </div>
                 </div>
@@ -88,6 +84,13 @@
         .filter {
             text-align: center;
         }
+
+        #viz {
+            height:700px;
+            border: 1px solid lightgray;
+            font: 22pt arial;
+			margin: 10px;
+        }
     </style>
 
     <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
@@ -101,7 +104,7 @@
             container_id: "viz",
             server_url: "bolt://localhost",
             server_user: "neo4j",
-            server_password: "PTUT5A",
+            server_password: "",
             labels: {
                 "Troll": {
                     caption: "user_key",

@@ -1,6 +1,7 @@
 var api = require('./neo4jApi');
 var pwd = require("../store-password.json")
-
+var viz;
+var cypher;
 $(function(){
   //showUser()
   search()
@@ -10,7 +11,24 @@ $(function(){
     e.preventDefault();
     search();
   });
+
+  $("#reload").click(function() {
+  
+    cypher = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE t.name ='".concat("", ($("#search").find("input[name=search]").val()).toString()).concat("", "' RETURN p,r,t");
+    console.log(cypher.length);
+    console.log(cypher);
+    if (cypher.length > 3) {
+      viz.renderWithCypher(cypher);
+    } else {
+      console.log("reload");
+      viz.reload();
+  
+    }
+  
+  });
 })
+
+
 
 function showUser() {
   api
@@ -51,7 +69,7 @@ function showProcess(query){
 }
 
 function draw() {
-  var config = {
+   var config = {
       container_id: "viz",
       server_url: "bolt://localhost",
       server_user: "neo4j",
@@ -66,7 +84,7 @@ function draw() {
       initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
   }
 
-  var viz = new NeoVis.default(config);
+  viz = new NeoVis.default(config);
   viz.render();
 }
 
