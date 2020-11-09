@@ -1,4 +1,5 @@
 var api = require('./neo4jApi');
+var pwd = require("../store-password.json")
 
 $(function(){
   //showUser()
@@ -47,6 +48,26 @@ function showProcess(query){
         }
       }         
     }, "json");
+}
+
+function draw() {
+  var config = {
+      container_id: "viz",
+      server_url: "bolt://localhost",
+      server_user: "neo4j",
+      server_password: pwd.password,
+      labels: {
+          "Troll": {
+              caption: "user_key",
+              size: "pagerank",
+              community: "community"
+          }
+      },
+      initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
+  }
+
+  var viz = new NeoVis.default(config);
+  viz.render();
 }
 
 /*$(function () {
