@@ -3,6 +3,7 @@ var api = require('./neo4jApi');
 $(function(){
   //showUser()
   search()
+  draw()
 
   $("#search").submit(e => {
     e.preventDefault();

@@ -13,7 +13,7 @@ function getUser() {
   return session
     .run(
       "MATCH (n:User) WHERE n.lastName = $lastName RETURN n",
-      {lastName: 'SMITH'})
+      { lastName: 'SMITH' })
     .then(result => {
       console.log('recuperation resultat requete')
       //console.log('results : ' + result.records[0].get('n'))
@@ -27,18 +27,18 @@ function getUser() {
     });
 }
 
-function getProcess(query){
+function getProcess(query) {
   var session = driver.session();
   console.log('début session process')
   console.log(query)
   return session
     .run(
       "MATCH p=()-[r:hasTag]->(t :Tag {name: $name}) RETURN p",
-      {name: query})
+      { name: query })
     .then(result => {
-    return result.records.map(record => {
-      return new Process(record.get('p').start);
-    });
+      return result.records.map(record => {
+        return new Process(record.get('p').start);
+      });
     })
     .catch(error => {
       throw error;
