@@ -48,8 +48,40 @@ function getProcess(query) {
     });
 }
 
+function getProcesses(tags) {
+  var session = driver.session();
+  console.log('début session plusieurs process')
+  console.log('tags : ' + tags)
+  var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
+  for(var i=0; i<tags.length; i++){
+    if(i!=tags.length -1){
+      query = query + "t.name = '" + tags[i] + "' OR "
+    }
+    else{
+      query = query + "t.name = '" + tags[i] + "'"
+    }
+  }
+  query = query + " RETURN p"
+  console.log('requete : ' + query)
+  return session
+    .run(
+      query)
+    .then(result => {
+      return result.records.map(record => {
+        return new Process(record.get('p').start);
+      });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 exports.getUser = getUser;
 exports.getProcess = getProcess;
+exports.getProcesses = getProcesses;
 
 /*function searchMovies(queryString) {
   var session = driver.session();

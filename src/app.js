@@ -26,6 +26,14 @@ $(function(){
     }
   
   });
+  var tags = []
+  $('#add').click(function(){
+    tag = document.getElementsByName('search')[0].value
+    tags.push(tag)
+    console.log(tags)
+    api.getProcesses(tags)
+  });
+
 })
 
 
@@ -47,24 +55,24 @@ function search() {
   api
     .getProcess(query)
     .then(p => {
-      if(!p) return;
+      if (!p) return;
       showProcess(query)
     })
 }
 
-function showProcess(query){
+function showProcess(query) {
   api
     .getProcess(query)
     .then(p => {
       if (p) {
         var $list = $("#names").empty();
-        for(var i=0; i< p.length; i++){
+        for (var i = 0; i < p.length; i++) {
           console.log('item : ' + p[i].name)
-          
+
           $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
           //$("#name").text(p[i].name);
         }
-      }         
+      }
     }, "json");
 }
 
