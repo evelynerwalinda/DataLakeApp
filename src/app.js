@@ -47,13 +47,27 @@ $(function () {
 
     console.log(query.length);
     console.log(query);
+    // if (query.length > 3) {
+    //   viz.renderWithCypher(query);
+    // } else {
+    //   console.log("reload");
+    //   viz.reload();
+    // }
+
+  });
+
+  $('#names').on('click', "td", function() {
+    console.log($(this).text());
+    query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
+    // query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
+    // query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+    console.log(query);
     if (query.length > 3) {
       viz.renderWithCypher(query);
     } else {
       console.log("reload");
       viz.reload();
     }
-
   });
 
 });
@@ -83,6 +97,8 @@ function search() {
     })
 }
 
+
+
 function showProcesses(tags) {
   api
     .getProcesses(tags)
@@ -98,6 +114,8 @@ function showProcesses(tags) {
       }
     }, "json");
 }
+
+
 
 function draw() {
   var config = {
