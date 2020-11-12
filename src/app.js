@@ -3,8 +3,6 @@ var pwd = require("../store-password.json")
 var viz;
 var cypher;
 $(function () {
-  //showUser()
-  search()
   draw()
 
   $("#search").submit(e => {
@@ -33,7 +31,7 @@ $(function () {
     console.log('item added : ' + event.item);
     console.log('tagsinput : ' + tagsinput)
 
-    //api.getProcesses(tagsinput)
+    showProcesses(tagsinput)
 
     var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
     for (var i = 0; i < tagsinput.length; i++) {
@@ -46,7 +44,6 @@ $(function () {
     }
     query = query + " RETURN p"
     console.log('requete : ' + query)
-
 
     console.log(query.length);
     console.log(query);
@@ -86,9 +83,9 @@ function search() {
     })
 }
 
-function showProcess(query) {
+function showProcesses(tags) {
   api
-    .getProcess(query)
+    .getProcesses(tags)
     .then(p => {
       if (p) {
         var $list = $("#names").empty();
