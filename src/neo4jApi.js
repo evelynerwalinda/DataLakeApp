@@ -52,23 +52,24 @@ function getProcesses(tags) {
   var session = driver.session();
   console.log('début session plusieurs process')
   console.log('tags : ' + tags)
-  var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
+  var query = "MATCH (p:Process)-[r:hasTag]->(t :Tag) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "t.name = '" + tags[i] + "' OR "
+      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR "
     }
     else{
-      query = query + "t.name = '" + tags[i] + "'"
+      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "')"
     }
   }
-  query = query + " RETURN p"
+  
+  query = query + " RETURN distinct p"
   console.log('requete : ' + query)
   return session
     .run(
       query)
     .then(result => {
       return result.records.map(record => {
-        return new Process(record.get('p').start);
+        return new Process(record.get('p'));
       });
     })
     .catch(error => {

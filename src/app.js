@@ -5,11 +5,6 @@ var cypher;
 $(function () {
   draw()
 
-  $("#search").submit(e => {
-    e.preventDefault();
-    search();
-  });
-
   /*$("#reload").click(function () {
 
     cypher = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE t.name ='".concat("", ($("#search").find("input[name=search]").val()).toString()).concat("", "' RETURN p,r,t");
@@ -43,7 +38,7 @@ $(function () {
       }
     }
     query = query + " RETURN p"
-    console.log('requete : ' + query)
+    //console.log('requete : ' + query)
 
     console.log(query.length);
     console.log(query);
@@ -106,11 +101,10 @@ function showProcesses(tags) {
       if (p) {
         var $list = $("#names").empty();
         for (var i = 0; i < p.length; i++) {
-          console.log('item : ' + p[i].name)
 
           $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
-          //$("#name").text(p[i].name);
         }
+        console.log('nb items liste : ' + p.length)
       }
     }, "json");
 }
