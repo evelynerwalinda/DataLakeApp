@@ -1,7 +1,7 @@
 var api = require('./neo4jApi');
 var pwd = require("../store-password.json")
 var viz;
-var cypher;
+var typeRecherche = [];
 $(function () {
   draw()
   draw2()
@@ -11,7 +11,7 @@ $(function () {
   $("#tagsinput").on('itemAdded', function (event) {
     console.log('item added : ' + event.item);
     console.log('tagsinput : ' + tagsinput)
-
+    
     showProcesses(tagsinput)
 
     var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
@@ -42,6 +42,25 @@ $(function () {
       viz.reload();
     }
   });
+
+  $('#filter :checkbox').change(function() {
+    // this will contain a reference to the checkbox   
+    if (this.checked) {
+      console.log(this.id);
+      typeRecherche.push(this.id);
+      console.log(typeRecherche);
+        // the checkbox is now checked 
+    } else {
+      console.log(this.id);
+      const index = typeRecherche.indexOf(this.id);
+      if (index > -1) {
+        typeRecherche.splice(index, 1);
+      }
+      console.log(typeRecherche);
+        // the checkbox is now no longer checked
+    }
+});
+
 
 });
 
