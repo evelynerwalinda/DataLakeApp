@@ -13,21 +13,17 @@ $(function () {
     console.log('tagsinput : ' + tagsinput)
     
     showProcesses(tagsinput)
-
-    var query = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE "
-    for (var i = 0; i < tagsinput.length; i++) {
-      if (i != tagsinput.length - 1) {
-        query = query + "t.name = '" + tagsinput[i] + "' OR "
-      }
-      else {
-        query = query + "t.name = '" + tagsinput[i] + "'"
-      }
-    }
-    query = query + " RETURN p"
-
-    console.log(query.length);
-    console.log(query);
   });
+
+
+  $("#tagsinput").on('itemRemoved', function(event) {
+    console.log('item removed : '+event.item);
+    console.log('tagsinput : ' + tagsinput)
+
+    showProcesses(tagsinput)
+});
+
+
 
   $('#names').on('click', "td", function() {
     console.log($(this).text());

@@ -55,7 +55,7 @@ function getProcesses(tags) {
   var query = "MATCH (p:Process)-[r:hasTag]->(t :Tag) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR"
+      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR "
     }
     else{
       query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "')"
