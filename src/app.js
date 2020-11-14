@@ -4,21 +4,7 @@ var viz;
 var cypher;
 $(function () {
   draw()
-
-  /*$("#reload").click(function () {
-
-    cypher = "MATCH p=()-[r:hasTag]->(t :Tag) WHERE t.name ='".concat("", ($("#search").find("input[name=search]").val()).toString()).concat("", "' RETURN p,r,t");
-    console.log(cypher.length);
-    console.log(cypher);
-    if (cypher.length > 3) {
-      viz.renderWithCypher(cypher);
-    } else {
-      console.log("reload");
-      viz.reload();
-
-    }
-
-  });*/
+  draw2()
 
   var tagsinput = $('#tagsinput').tagsinput('items');
 
@@ -38,17 +24,9 @@ $(function () {
       }
     }
     query = query + " RETURN p"
-    //console.log('requete : ' + query)
 
     console.log(query.length);
     console.log(query);
-    // if (query.length > 3) {
-    //   viz.renderWithCypher(query);
-    // } else {
-    //   console.log("reload");
-    //   viz.reload();
-    // }
-
   });
 
   $('#names').on('click', "td", function() {
@@ -129,6 +107,26 @@ function draw() {
 
   viz = new NeoVis.default(config);
   viz.render();
+}
+
+function draw2() {
+  var config = {
+    container_id: "viz2",
+    server_url: "bolt://localhost",
+    server_user: "neo4j",
+    server_password: pwd.password,
+    labels: {
+      "Troll": {
+        caption: "user_key",
+        size: "pagerank",
+        community: "community"
+      }
+    },
+    initial_cypher: "MATCH (n:User) WHERE n.lastName = 'Dupont' RETURN n"
+  }
+
+  viz2 = new NeoVis.default(config);
+  viz2.render();
 }
 
 /*$(function () {

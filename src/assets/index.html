@@ -18,9 +18,9 @@
             <div class="row" style="text-align: center;">
                 <ul class="nav navbar-nav">
                     <li>
-                            <div class="form-group">
-                                Enter your tags here : <select multiple data-role="tagsinput" id="tagsinput"></select>
-                            </div>
+                        <div class="form-group">
+                            Enter your tags here : <select multiple data-role="tagsinput" id="tagsinput"></select>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -46,10 +46,13 @@
         <div class="col-md-7">
             <div class="panel panel-default">
                 <div class="panel-heading" id="title">Graph</div>
-                <div class="row">
-                    <div class="col-md-12 col-sm-12 mw-100">
-                        <div id="viz"></div>
-                    </div>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#viz">Graph 1</a></li>
+                    <li><a data-toggle="tab" href="#viz2">Graph 2</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="viz" class="tab-pane fade in active"></div>
+                    <div id="viz2" class="tab-pane fade"></div>
                 </div>
             </div>
         </div>
@@ -79,7 +82,7 @@
             text-align: center;
         }
 
-        #viz {
+        #viz, #viz2 {
             height: 700px;
             border: 1px solid lightgray;
             font: 22pt arial;
@@ -98,10 +101,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js"
         crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>
 
-<script type="text/javascript">    
-   
+<script type="text/javascript">
+
 </script>
 
 </html>
