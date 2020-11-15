@@ -11,21 +11,29 @@ $(function () {
   $("#tagsinput").on('itemAdded', function (event) {
     console.log('item added : ' + event.item);
     console.log('tagsinput : ' + tagsinput)
-    
+    $("#names").empty()
     showProcesses(tagsinput)
+    showAnalyses(tagsinput)
   });
 
 
-  $("#tagsinput").on('itemRemoved', function(event) {
-    console.log('item removed : '+event.item);
+  $("#tagsinput").on('itemRemoved', function (event) {
+    console.log('item removed : ' + event.item);
     console.log('tagsinput : ' + tagsinput)
 
-    showProcesses(tagsinput)
-});
+    if (!tagsinput.length == 0) {
+      $("#names").empty()
+      showProcesses(tagsinput)
+      showAnalyses(tagsinput)
+    }
+    else {
+      $("#names").empty();
+    }
+  });
 
 
 
-  $('#names').on('click', "td", function() {
+  $('#names').on('click', "td", function () {
     console.log($(this).text());
     query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
     // query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
@@ -39,13 +47,23 @@ $(function () {
     }
   });
 
-  $('#filter :checkbox').change(function() {
+  $('#filter :checkbox').change(function () {
     // this will contain a reference to the checkbox   
     if (this.checked) {
-      console.log(this.id);
+      //console.log(this.id);
       typeRecherche.push(this.id);
-      console.log(typeRecherche);
-        // the checkbox is now checked 
+      console.log("cases cochées : " + typeRecherche);
+      $("#names").empty()
+      for (var i = 0; i < typeRecherche.length; i++) {
+        if (typeRecherche[i] == "process") {
+          showProcesses(tagsinput)
+        }
+
+        if (typeRecherche[i] == "analysis") {
+          showAnalyses(tagsinput)
+        }
+      }
+      // the checkbox is now checked 
     } else {
       console.log(this.id);
       const index = typeRecherche.indexOf(this.id);
@@ -53,14 +71,30 @@ $(function () {
         typeRecherche.splice(index, 1);
       }
       console.log(typeRecherche);
-        // the checkbox is now no longer checked
+      // the checkbox is now no longer checked
+      $("#names").empty()
+      if (typeRecherche.length == 0) {
+        console.log("pas de cases cochées")
+        showProcesses(tagsinput)
+        showAnalyses(tagsinput)
+      }
+      else {
+        for (var i = 0; i < typeRecherche.length; i++) {
+          if (typeRecherche[i] == "process") {
+            showProcesses(tagsinput)
+          }
+
+          if (typeRecherche[i] == "analysis") {
+            showAnalyses(tagsinput)
+          }
+        }
+      }
     }
-});
+
+  });
 
 
 });
-
-
 
 
 function showUser() {
@@ -92,7 +126,24 @@ function showProcesses(tags) {
     .getProcesses(tags)
     .then(p => {
       if (p) {
-        var $list = $("#names").empty();
+        //var $list = $("#names").empty();
+        var $list = $("#names")
+        for (var i = 0; i < p.length; i++) {
+
+          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+        }
+        console.log('nb items liste : ' + p.length)
+      }
+    }, "json");
+}
+
+function showAnalyses(tags) {
+  api
+    .getAnalyses(tags)
+    .then(p => {
+      if (p) {
+        //var $list = $("#names").empty();
+        var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
           $list.append($("<tr><td>" + p[i].name + "</td></tr>"));

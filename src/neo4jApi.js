@@ -1,5 +1,6 @@
 require('file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
 var Process = require('./models/Process');
+var AnalysisEntityClass = require('./models/AnalysisEntityClass')
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
@@ -50,15 +51,15 @@ function getProcess(query) {
 
 function getProcesses(tags) {
   var session = driver.session();
-  console.log('début session plusieurs process')
+  console.log('début session recherches process')
   console.log('tags : ' + tags)
   var query = "MATCH (p:Process)-[r:hasTag]->(t :Tag) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR "
+      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR "
     }
     else{
-      query = query + "toLower(t.name) = toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "')"
+      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "')"
     }
   }
   
@@ -80,9 +81,42 @@ function getProcesses(tags) {
     });
 }
 
+function getAnalyses(tags) {
+  var session = driver.session();
+  console.log('début session recherche analyses')
+  console.log('tags : ' + tags)
+  var query = "MATCH (a:AnalysisEntityClass) WHERE "
+  for(var i=0; i<tags.length; i++){
+    if(i!=tags.length -1){
+      query = query + "toLower(a.name) CONTAINS toLower('" + tags[i] + "') OR toLower(a.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "') OR "
+    }
+    else{
+      query = query + "toLower(a.name) CONTAINS toLower('" + tags[i] + "') OR toLower(a.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "')"
+    }
+  }
+  
+  query = query + " RETURN distinct a"
+  console.log('requete : ' + query)
+  return session
+    .run(
+      query)
+    .then(result => {
+      return result.records.map(record => {
+        return new AnalysisEntityClass(record.get('a'));
+      });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 exports.getUser = getUser;
 exports.getProcess = getProcess;
 exports.getProcesses = getProcesses;
+exports.getAnalyses = getAnalyses;
 
 /*function searchMovies(queryString) {
   var session = driver.session();
