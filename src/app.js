@@ -4,6 +4,7 @@ var viz;
 var typeRecherche = [];
 $(function () {
   draw()
+  draw2()
 
   var tagsinput = $('#tagsinput').tagsinput('items');
 
@@ -12,6 +13,7 @@ $(function () {
     console.log('tagsinput : ' + tagsinput)
     $("#names").empty()
     draw()
+    draw(2)
     showProcesses(tagsinput)
     showStudies(tagsinput)
     showDatabases(tagsinput)
@@ -25,6 +27,7 @@ $(function () {
     if (!tagsinput.length == 0) {
       $("#names").empty()
       draw()
+      draw2()
       showProcesses(tagsinput)
       showStudies(tagsinput)
       showDatabases(tagsinput)
@@ -108,7 +111,14 @@ $(function () {
         
       }
     }, "json");
-      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path"; //dataset
+      query2 = "MATCH path = (d:DLStructuredDataset {name:'" + $(this).text()+"'})-[:sourceData]->(p:Process), (p)-[:hasSubprocess]->(j:Process) RETURN path";
+      if (query2.length > 3) {
+        viz2.renderWithCypher(query2);
+      } else {
+        console.log("reload");
+        viz2.reload();
+      }
     }}}
     console.log(query);
     if (query.length > 3) {
@@ -300,11 +310,32 @@ function draw2() {
     labels: {
       "Process": {
         caption: "name",
-        size: "pagerank",
-        community: "community"
+        font: {
+          "size":26,
+          "color":"#000000"
+      },
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
+      },
+
+      "sourceData": {
+        caption: "name",
+      },
+
+      "AnalysisEntityClass": {
+        caption: "name",
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
       }
     },
+    arrows : true
   }
+  viz2 = new NeoVis.default(config);
+  viz2.render();
 
   // var config = {
   //   container_id: "viz2",
