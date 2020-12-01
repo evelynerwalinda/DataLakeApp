@@ -113,10 +113,43 @@ function getAnalyses(tags) {
     });
 }
 
+function getDatabases(tags) {
+  var session = driver.session();
+  console.log('début session recherche bdd')
+  console.log('tags : ' + tags)
+  var query = "MATCH (ds:DLStructuredDataset) WHERE "
+  for(var i=0; i<tags.length; i++){
+    if(i!=tags.length -1){
+      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "') OR "
+    }
+    else{
+      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "')"
+    }
+  }
+  
+  query = query + " RETURN distinct ds"
+  console.log('requete : ' + query)
+  return session
+    .run(
+      query)
+    .then(result => {
+      return result.records.map(record => {
+        return new AnalysisEntityClass(record.get('ds'));
+      });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 exports.getUser = getUser;
 exports.getProcess = getProcess;
 exports.getProcesses = getProcesses;
 exports.getAnalyses = getAnalyses;
+exports.getDatabases = getDatabases;
 
 /*function searchMovies(queryString) {
   var session = driver.session();

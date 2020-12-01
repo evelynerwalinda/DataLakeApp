@@ -14,6 +14,7 @@ $(function () {
     $("#names").empty()
     showProcesses(tagsinput)
     showAnalyses(tagsinput)
+    showDatabases(tagsinput)
   });
 
 
@@ -25,6 +26,7 @@ $(function () {
       $("#names").empty()
       showProcesses(tagsinput)
       showAnalyses(tagsinput)
+      showDatabases(tagsinput)
     }
     else {
       $("#names").empty();
@@ -62,6 +64,10 @@ $(function () {
         if (typeRecherche[i] == "analysis") {
           showAnalyses(tagsinput)
         }
+
+        if (typeRecherche[i] == "db") {
+          showDatabases(tagsinput)
+        }
       }
       // the checkbox is now checked 
     } else {
@@ -77,6 +83,7 @@ $(function () {
         console.log("pas de cases cochées")
         showProcesses(tagsinput)
         showAnalyses(tagsinput)
+        showDatabases(tagsinput)
       }
       else {
         for (var i = 0; i < typeRecherche.length; i++) {
@@ -86,6 +93,10 @@ $(function () {
 
           if (typeRecherche[i] == "analysis") {
             showAnalyses(tagsinput)
+          }
+
+          if (typeRecherche[i] == "db") {
+            showDatabases(tagsinput)
           }
         }
       }
@@ -140,6 +151,22 @@ function showProcesses(tags) {
 function showAnalyses(tags) {
   api
     .getAnalyses(tags)
+    .then(p => {
+      if (p) {
+        //var $list = $("#names").empty();
+        var $list = $("#names")
+        for (var i = 0; i < p.length; i++) {
+
+          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+        }
+        console.log('nb items liste : ' + p.length)
+      }
+    }, "json");
+}
+
+function showDatabases(tags) {
+  api
+    .getDatabases(tags)
     .then(p => {
       if (p) {
         //var $list = $("#names").empty();
