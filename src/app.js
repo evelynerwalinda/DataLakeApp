@@ -36,10 +36,60 @@ $(function () {
 
 
   $('#names').on('click', "td", function () {
-    console.log($(this).text());
-    query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
-    // query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
-    // query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+    console.log($(this));
+    console.log($(this).context.className);
+    $("#properties").empty()
+    if($(this).context.className =="Process"){
+      api
+    .getProcesses([$(this).text()])
+    .then(p => {
+      if (p) {
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          if(propriete == 'creationDate' || propriete =="executionDate" || propriete=='id'){
+            $p.append("<p>"+ propriete + " : "+ json[propriete].low + "</p>");
+          }else {
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
+        }
+      }
+    }, "json");
+      query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
+    }else {if($(this).context.className=="Analyse"){
+      api
+    .getAnalyses([$(this).text()])
+    .then(p => {
+      if (p) {
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          if(propriete == 'creationDate' || propriete =="executionDate" || propriete=='id'){
+            $p.append("<p>"+ propriete + " : "+ json[propriete].low + "</p>");
+          }else {
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
+        }
+      }
+    }, "json");
+      query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
+    }else{
+      api
+    .getDatabases([$(this).text()])
+    .then(p => {
+      if (p) {
+        console.log(p[0]);
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
+        
+      }
+    }, "json");
+      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+    }}
     console.log(query);
     if (query.length > 3) {
       viz.renderWithCypher(query);
@@ -47,6 +97,7 @@ $(function () {
       console.log("reload");
       viz.reload();
     }
+
   });
 
   $('#filter :checkbox').change(function () {
@@ -141,7 +192,7 @@ function showProcesses(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Process'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -157,7 +208,7 @@ function showAnalyses(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Analyse'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -173,7 +224,7 @@ function showDatabases(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Database'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -203,23 +254,28 @@ function draw() {
 }
 
 function draw2() {
-  var config = {
-    container_id: "viz2",
-    server_url: "bolt://localhost",
-    server_user: "neo4j",
-    server_password: pwd.password,
-    labels: {
-      "Troll": {
-        caption: "user_key",
-        size: "pagerank",
-        community: "community"
-      }
-    },
-    initial_cypher: "MATCH (n:User) WHERE n.lastName = 'Dupont' RETURN n"
-  }
 
-  viz2 = new NeoVis.default(config);
-  viz2.render();
+
+
+
+
+  // var config = {
+  //   container_id: "viz2",
+  //   server_url: "bolt://localhost",
+  //   server_user: "neo4j",
+  //   server_password: pwd.password,
+  //   labels: {
+  //     "Troll": {
+  //       caption: "user_key",
+  //       size: "pagerank",
+  //       community: "community"
+  //     }
+  //   },
+  //   initial_cypher: "MATCH (n:User) WHERE n.lastName = 'Dupont' RETURN n"
+  // }
+
+  // viz2 = new NeoVis.default(config);
+  // viz2.render();
 }
 
 /*$(function () {
