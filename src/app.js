@@ -4,7 +4,6 @@ var viz;
 var typeRecherche = [];
 $(function () {
   draw()
-  draw2()
 
   var tagsinput = $('#tagsinput').tagsinput('items');
 
@@ -13,7 +12,6 @@ $(function () {
     console.log('tagsinput : ' + tagsinput)
     $("#names").empty()
     draw()
-    draw2()
     showProcesses(tagsinput)
     showStudies(tagsinput)
     showDatabases(tagsinput)
@@ -27,7 +25,6 @@ $(function () {
     if (!tagsinput.length == 0) {
       $("#names").empty()
       draw()
-      draw2()
       showProcesses(tagsinput)
       showStudies(tagsinput)
       showDatabases(tagsinput)
@@ -42,22 +39,77 @@ $(function () {
 
 
   $('#names').on('click', "td", function () {
-    api
-    .getAnalyses(tagsinput)
+    $(".analyse").empty()
+    
+    console.log($(this));
+    console.log($(this).context.className);
+    $("#properties").empty()
+    if($(this).context.className =="Process"){
+      api
+    .getProcesses([$(this).text()])
     .then(p => {
       if (p) {
-        $(this).append($("<tr><td>" + "Analyses :" + "</td></tr>"));
-        for (var i = 0; i < p.length; i++) {
-          $(this).append($("<tr><td>" + p[i].name + "</td></tr>"));
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          if(propriete == 'creationDate' || propriete =="executionDate" || propriete=='id'){
+            $p.append("<p>"+ propriete + " : "+ json[propriete].low + "</p>");
+          }else {
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
         }
-        //console.log('nb items liste : ' + p.length)
       }
     }, "json");
+      query = "MATCH path =(m : DLStructuredDataset)<-[:targetData]-(c:Process)<-[:sourceData]-(d:DLStructuredDataset), (c)<-[q:hasSubprocess]-(w: Process) WHERE c.name='" + $(this).text() + "' RETURN path, w,q"; //Process
+    }else {if($(this).context.className=="Study"){
+      api
+    .getStudies([$(this).text()])
+    .then(p => {
+      if (p) {
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          if(propriete == 'creationDate' || propriete =="executionDate" || propriete=='id'){
+            $p.append("<p>"+ propriete + " : "+ json[propriete].low + "</p>");
+          }else {
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
+        }
+      }
+    }, "json");
+      query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
+    
+      var $list = $(this)
+      api
+      .getAnalyses(tagsinput)
+      .then(p => {
+        if (p) {
+          
+          $list.append($("<tr class ='analyse'><td>" + "Analyses :" + "</td></tr>"));
+          for (var i = 0; i < p.length; i++) {
+            $list.append($("<tr class ='analyse'><td>" + p[i].name + "</td></tr>"));
+          }
 
-    console.log($(this).text());
-    query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
-    // query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
-    // query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+        }
+      }, "json");
+    
+    }else{if($(this).context.className=="Database"){
+      api
+    .getDatabases([$(this).text()])
+    .then(p => {
+      if (p) {
+        console.log(p[0]);
+        json = JSON.parse(JSON.stringify(p[0]))
+        var $p = $("#properties")
+        for(propriete in p[0]){
+          
+            $p.append("<p>"+ propriete + " : "+ json[propriete] + "</p>");
+          }
+        
+      }
+    }, "json");
+      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+    }}}
     console.log(query);
     if (query.length > 3) {
       viz.renderWithCypher(query);
@@ -65,6 +117,7 @@ $(function () {
       console.log("reload");
       viz.reload();
     }
+
   });
 
   $('#filter :checkbox').change(function () {
@@ -159,7 +212,7 @@ function showProcesses(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Process'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -175,7 +228,7 @@ function showStudies(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Study'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -191,7 +244,7 @@ function showDatabases(tags) {
         var $list = $("#names")
         for (var i = 0; i < p.length; i++) {
 
-          $list.append($("<tr><td>" + p[i].name + "</td></tr>"));
+          $list.append($("<tr><td class='Database'>" + p[i].name + "</td></tr>"));
         }
         console.log('nb items liste : ' + p.length)
       }
@@ -253,8 +306,23 @@ function draw2() {
     },
   }
 
-  viz2 = new NeoVis.default(config);
-  viz2.render();
+  // var config = {
+  //   container_id: "viz2",
+  //   server_url: "bolt://localhost",
+  //   server_user: "neo4j",
+  //   server_password: pwd.password,
+  //   labels: {
+  //     "Troll": {
+  //       caption: "user_key",
+  //       size: "pagerank",
+  //       community: "community"
+  //     }
+  //   },
+  //   initial_cypher: "MATCH (n:User) WHERE n.lastName = 'Dupont' RETURN n"
+  // }
+
+  // viz2 = new NeoVis.default(config);
+  // viz2.render();
 }
 
 /*$(function () {
