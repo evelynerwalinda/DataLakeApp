@@ -12,8 +12,10 @@ $(function () {
     console.log('item added : ' + event.item);
     console.log('tagsinput : ' + tagsinput)
     $("#names").empty()
+    draw()
+    draw2()
     showProcesses(tagsinput)
-    showAnalyses(tagsinput)
+    showStudies(tagsinput)
     showDatabases(tagsinput)
   });
 
@@ -24,18 +26,34 @@ $(function () {
 
     if (!tagsinput.length == 0) {
       $("#names").empty()
+      draw()
+      draw2()
       showProcesses(tagsinput)
-      showAnalyses(tagsinput)
+      showStudies(tagsinput)
       showDatabases(tagsinput)
     }
     else {
       $("#names").empty();
+      draw()
+      draw2()
     }
   });
 
 
 
   $('#names').on('click', "td", function () {
+    api
+    .getAnalyses(tagsinput)
+    .then(p => {
+      if (p) {
+        $(this).append($("<tr><td>" + "Analyses :" + "</td></tr>"));
+        for (var i = 0; i < p.length; i++) {
+          $(this).append($("<tr><td>" + p[i].name + "</td></tr>"));
+        }
+        //console.log('nb items liste : ' + p.length)
+      }
+    }, "json");
+
     console.log($(this).text());
     query = "MATCH path = (c:Process)<-[:sourceData]-(d:DLStructuredDataset) WHERE c.name='" + $(this).text() + "' RETURN path"; //Process
     // query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
@@ -62,7 +80,7 @@ $(function () {
         }
 
         if (typeRecherche[i] == "analysis") {
-          showAnalyses(tagsinput)
+          showStudies(tagsinput)
         }
 
         if (typeRecherche[i] == "db") {
@@ -82,7 +100,7 @@ $(function () {
       if (typeRecherche.length == 0) {
         console.log("pas de cases cochées")
         showProcesses(tagsinput)
-        showAnalyses(tagsinput)
+        showStudies(tagsinput)
         showDatabases(tagsinput)
       }
       else {
@@ -92,7 +110,7 @@ $(function () {
           }
 
           if (typeRecherche[i] == "analysis") {
-            showAnalyses(tagsinput)
+            showStudies(tagsinput)
           }
 
           if (typeRecherche[i] == "db") {
@@ -148,9 +166,9 @@ function showProcesses(tags) {
     }, "json");
 }
 
-function showAnalyses(tags) {
+function showStudies(tags) {
   api
-    .getAnalyses(tags)
+    .getStudies(tags)
     .then(p => {
       if (p) {
         //var $list = $("#names").empty();
@@ -189,13 +207,31 @@ function draw() {
     server_user: "neo4j",
     server_password: pwd.password,
     labels: {
-      "Troll": {
-        caption: "user_key",
-        size: "pagerank",
-        community: "community"
+      "Process": {
+        caption: "name",
+        font: {
+          "size":26,
+          "color":"#000000"
+      },
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
+      },
+
+      "sourceData": {
+        caption: "name",
+      },
+
+      "AnalysisEntityClass": {
+        caption: "name",
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
       }
     },
-    initial_cypher: "MATCH (n:User) WHERE n.lastName = 'SMITH' RETURN n"
+    arrows : true
   }
 
   viz = new NeoVis.default(config);
@@ -209,13 +245,12 @@ function draw2() {
     server_user: "neo4j",
     server_password: pwd.password,
     labels: {
-      "Troll": {
-        caption: "user_key",
+      "Process": {
+        caption: "name",
         size: "pagerank",
         community: "community"
       }
     },
-    initial_cypher: "MATCH (n:User) WHERE n.lastName = 'Dupont' RETURN n"
   }
 
   viz2 = new NeoVis.default(config);

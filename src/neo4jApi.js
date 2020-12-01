@@ -1,6 +1,8 @@
 require('file-loader?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
 var Process = require('./models/Process');
 var AnalysisEntityClass = require('./models/AnalysisEntityClass')
+var DLStructuredDataset = require('./models/DLStructuredDataset')
+var Study = require('./models/Study')
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
@@ -81,28 +83,28 @@ function getProcesses(tags) {
     });
 }
 
-function getAnalyses(tags) {
+function getStudies(tags) {
   var session = driver.session();
   console.log('début session recherche analyses')
   console.log('tags : ' + tags)
-  var query = "MATCH (a:AnalysisEntityClass) WHERE "
+  var query = "MATCH (s:Study) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "toLower(a.name) CONTAINS toLower('" + tags[i] + "') OR toLower(a.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "') OR "
+      query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "') OR "
     }
     else{
-      query = query + "toLower(a.name) CONTAINS toLower('" + tags[i] + "') OR toLower(a.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "')"
+      query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "')"
     }
   }
   
-  query = query + " RETURN distinct a"
+  query = query + " RETURN s"
   console.log('requete : ' + query)
   return session
     .run(
       query)
     .then(result => {
       return result.records.map(record => {
-        return new AnalysisEntityClass(record.get('a'));
+        return new Study(record.get('s'))
       });
     })
     .catch(error => {
@@ -112,6 +114,38 @@ function getAnalyses(tags) {
       return session.close();
     });
 }
+
+function getAnalyses(tags) {
+  var session = driver.session();
+  console.log('tags : ' + tags)
+  var query = "MATCH (s:Study)-[r:hasAnalysis]->(a:AnalysisEntityClass) WHERE "
+  for(var i=0; i<tags.length; i++){
+    if(i!=tags.length -1){
+      query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "') OR "
+    }
+    else{
+      query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "')"
+    }
+  }
+  
+  query = query + " RETURN a"
+  console.log('requete : ' + query)
+  return session
+    .run(
+      query)
+    .then(result => {
+      return result.records.map(record => {
+        return new Study(record.get('a'))
+      });
+    })
+    .catch(error => {
+      throw error;
+    })
+    .finally(() => {
+      return session.close();
+    });
+}
+
 
 function getDatabases(tags) {
   var session = driver.session();
@@ -134,7 +168,7 @@ function getDatabases(tags) {
       query)
     .then(result => {
       return result.records.map(record => {
-        return new AnalysisEntityClass(record.get('ds'));
+        return new DLStructuredDataset(record.get('ds'));
       });
     })
     .catch(error => {
@@ -148,6 +182,7 @@ function getDatabases(tags) {
 exports.getUser = getUser;
 exports.getProcess = getProcess;
 exports.getProcesses = getProcesses;
+exports.getStudies = getStudies;
 exports.getAnalyses = getAnalyses;
 exports.getDatabases = getDatabases;
 
