@@ -120,10 +120,10 @@ function getDatabases(tags) {
   var query = "MATCH (ds:DLStructuredDataset) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "') OR "
+      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.description) CONTAINS toLower('" + tags[i] + "') OR "
     }
     else{
-      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.descriptionAnalysis) CONTAINS toLower('" + tags[i] + "')"
+      query = query + "toLower(ds.name) CONTAINS toLower('" + tags[i] + "') OR toLower(ds.description) CONTAINS toLower('" + tags[i] + "')"
     }
   }
   
