@@ -118,7 +118,7 @@ function getStudies(tags) {
 function getAnalyses(tags) {
   var session = driver.session();
   console.log('tags : ' + tags)
-  var query = "MATCH (s:Study) OPTIONAL MATCH (s)-[r:hasAnalysis]->(a:AnalysisEntityClass) WHERE "
+  var query = "MATCH (s:Study)-[r:hasAnalysis]->(a:AnalysisEntityClass) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
       query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "') OR "
