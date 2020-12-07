@@ -99,13 +99,13 @@ $(function () {
       }
     }, "json");
       query = "MATCH path = shortestpath ((d:DLStructuredDataset)-[*]-(u:Study {name:'"+$(this).text()+"'})) RETURN path" //Study
-    
+      console.log("hello");
       var $list = $(this)
       api
       .getAnalyses(tagsinput)
       .then(p => {
         if (p) {
-          
+          console.log(p);
           $list.append($("<tr class ='analyse'><td>" + "Analyses :" + "</td></tr>"));
           for (var i = 0; i < p.length; i++) {
             $list.append($("<tr class ='analyse'><td>" + p[i].name + "</td></tr>"));
