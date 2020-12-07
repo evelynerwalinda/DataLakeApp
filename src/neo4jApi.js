@@ -55,13 +55,13 @@ function getProcesses(tags) {
   var session = driver.session();
   console.log('début session recherches process')
   console.log('tags : ' + tags)
-  var query = "MATCH (p:Process)-[r:hasTag]->(t :Tag) WHERE "
+  var query = "MATCH (p:Process) OPTIONAL MATCH (p)-[r:hasTag]->(t :Tag) OPTIONAL MATCH (o:Operation)-[:isUsedBy]->(:OperationOfProcess)<-[:containsOp]-(p) WITH p,t,o WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
-      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR "
+      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR toLower(o.name) CONTAINS toLower('" + tags[i] + "') OR"
     }
     else{
-      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "')"
+      query = query + "toLower(t.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.name) CONTAINS toLower('" + tags[i] + "') OR toLower(p.description) CONTAINS toLower('" + tags[i] + "') OR toLower(o.name) CONTAINS toLower('" + tags[i] + "')"
     }
   }
   
@@ -118,7 +118,7 @@ function getStudies(tags) {
 function getAnalyses(tags) {
   var session = driver.session();
   console.log('tags : ' + tags)
-  var query = "MATCH (s:Study)-[r:hasAnalysis]->(a:AnalysisEntityClass) WHERE "
+  var query = "MATCH (s:Study) OPTIONAL MATCH (s)-[r:hasAnalysis]->(a:AnalysisEntityClass) WHERE "
   for(var i=0; i<tags.length; i++){
     if(i!=tags.length -1){
       query = query + "toLower(s.name) CONTAINS toLower('" + tags[i] + "') OR "

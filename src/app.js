@@ -4,6 +4,8 @@ var viz;
 var typeRecherche = [];
 $(function () {
   draw()
+  draw2()
+  draw3()
 
   var tagsinput = $('#tagsinput').tagsinput('items');
 
@@ -12,6 +14,8 @@ $(function () {
     console.log('tagsinput : ' + tagsinput)
     $("#names").empty()
     draw()
+    draw2()
+    draw3()
     showProcesses(tagsinput)
     showStudies(tagsinput)
     showDatabases(tagsinput)
@@ -25,6 +29,8 @@ $(function () {
     if (!tagsinput.length == 0) {
       $("#names").empty()
       draw()
+      draw2()
+      draw3()
       showProcesses(tagsinput)
       showStudies(tagsinput)
       showDatabases(tagsinput)
@@ -33,6 +39,7 @@ $(function () {
       $("#names").empty();
       draw()
       draw2()
+      draw3()
     }
   });
 
@@ -60,7 +67,21 @@ $(function () {
         }
       }
     }, "json");
-      query = "MATCH path =(m : DLStructuredDataset)<-[:targetData]-(c:Process)<-[:sourceData]-(d:DLStructuredDataset), (c)<-[q:hasSubprocess]-(w: Process) WHERE c.name='" + $(this).text() + "' RETURN path, w,q"; //Process
+      query = "MATCH path =(m : DLStructuredDataset)<-[:targetData]-(c:Process {name:'" + $(this).text() + "'})<-[:sourceData]-(d:DLStructuredDataset) OPTIONAL MATCH (c)<-[q:hasSubprocess]-(w: Process) RETURN path, w,q"; //Process
+      query2 ="MATCH path= (p:Process {name:'" + $(this).text() + "'})-[:hasSubprocess]-(t:Process) RETURN path"
+      query3 = "MATCH path = (p:Process {name:'" + $(this).text() + "'})-[:containsOp]->(c:OperationOfProcess)<-[:isUsedBy]-(o:Operation) RETURN path"
+      if (query2.length > 3) {
+        viz2.renderWithCypher(query2);
+      } else {
+        console.log("reload");
+        viz2.reload();
+      }
+      if (query3.length > 3) {
+        viz3.renderWithCypher(query3);
+      } else {
+        console.log("reload");
+        viz3.reload();
+      }
     }else {if($(this).context.className=="Study"){
       api
     .getStudies([$(this).text()])
@@ -108,7 +129,16 @@ $(function () {
         
       }
     }, "json");
-      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path" //dataset
+      query = "MATCH path = shortestpath ((ds:DatasetSource)-[*]-(d:DLStructuredDataset {name:'" + $(this).text()+"'})) RETURN path"; //dataset
+      //query2 = "MATCH path = (d:DLStructuredDataset {name:'" + $(this).text()+"'})-[:sourceData]->(p:Process), path2 = (d)<-[:targetData]-(p1:Process), (p1)-[:hasSubprocess]->(u:Process)  RETURN path,path2";
+      //MATCH path = (d:DLStructuredDataset {name:'MIMIC critical care database'})-[:sourceData]->(p:Process), (p)-[:hasSubprocess]->(e:Process) OPTIONAL MATCH path2 = (d)<-[:targetData]-(p1:Process), (p1)-[:hasSubprocess]->(u:Process) RETURN path,path2
+      query2 = "MATCH (d:DLStructuredDataset {name:'" + $(this).text()+"'}) OPTIONAL MATCH (d)-[r:sourceData]->(p:Process)-[:hasSubprocess]->(j:Process) OPTIONAL MATCH (d)<-[s:targetData]-(p1:Process)-[:hasSubprocess]->(j1:Process) with d,p,p1,r,s RETURN d,p,p1,r,s"
+      if (query2.length > 3) {
+        viz2.renderWithCypher(query2);
+      } else {
+        console.log("reload");
+        viz2.reload();
+      }
     }}}
     console.log(query);
     if (query.length > 3) {
@@ -282,6 +312,12 @@ function draw() {
 
       "DLStructuredDataset": {
         caption: "name",
+      },
+      "Study": {
+        caption: "name",
+      },
+      "EntityClass":{
+        caption: "name",
       }
     },
     arrows : true
@@ -300,12 +336,62 @@ function draw2() {
     labels: {
       "Process": {
         caption: "name",
-        size: "pagerank",
-        community: "community"
+        font: {
+          "size":26,
+          "color":"#000000"
+      },
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
+      },
+
+      "sourceData": {
+        caption: "name",
+      },
+
+      "AnalysisEntityClass": {
+        caption: "name",
+      },
+
+      "DLStructuredDataset": {
+        caption: "name",
       }
     },
+    arrows : true
   }
+  viz2 = new NeoVis.default(config);
+  viz2.render();
+}
 
+  function draw3() {
+    var config = {
+      container_id: "viz3",
+      server_url: "bolt://localhost",
+      server_user: "neo4j",
+      server_password: pwd.password,
+      labels: {
+        "Process": {
+          caption: "name",
+          font: {
+            "size":26,
+            "color":"#000000"
+        },
+        },
+  
+        "Operation": {
+          caption: "name",
+        },
+  
+        "OperationOfProcess": {
+          caption: "nbOfSequence",
+        }
+      },
+      arrows : true
+    }
+    viz3 = new NeoVis.default(config);
+    viz3.render();
+  }
   // var config = {
   //   container_id: "viz2",
   //   server_url: "bolt://localhost",
@@ -323,7 +409,7 @@ function draw2() {
 
   // viz2 = new NeoVis.default(config);
   // viz2.render();
-}
+
 
 /*$(function () {
   renderGraph();
