@@ -243,7 +243,7 @@ $(function () {
       $('#attRelationButton')[0].style.display = 'none';
       $('#operationButton')[0].style.display = 'block';
 
-      //Va chercher lles information concenant le process
+      //Va chercher les information concenant le process
       api
         .getProcesses([$(this).text()])
         .then(p => {
@@ -673,6 +673,7 @@ $(function () {
     }
   });
 
+
   $('#usedOpeDropdown').on('click', 'input', function () {
     $("#processNames").empty();
     if (this.checked) {
@@ -687,6 +688,7 @@ $(function () {
     }
     console.log(typeOpe);
   });
+
   $('#languageDropDown').on('click', 'input', function () {
     $("#processNames").empty();
     if (this.checked) {
@@ -701,6 +703,7 @@ $(function () {
     }
     console.log(langList);
   });
+
   $('#exeEnvDropdown').on('click', 'input', function () {
     $("#processNames").empty();
     if (this.checked) {
@@ -715,6 +718,7 @@ $(function () {
     }
     console.log(exeEnvList);
   });
+
   $('#landmarkerDropdown').on('click', 'input', function () {
     $("#analyseNames").empty();
     if (this.checked) {
@@ -768,7 +772,6 @@ $(function () {
   });
 
   $('#moreA').on("click", function () {
-    //$('#moreDB').innerHTML = 'less';
     var display = $('#moreAFilter')[0].style.display;
     if (display === "none") {
       $('#moreAFilter')[0].style.display = "block";
@@ -1090,27 +1093,28 @@ async function getAnalyseOfRelationship(id, relationlist) {
     }, 'json')
 }
 
-function showUser() {
-  api
-    .getUser()
-    .then(user => {
-      if (!user) return;
-      console.log('user : ' + user.properties.lastName)
-      $("#lastName").text(user.properties.lastName);
-    }, "json");
-}
+// function showUser() {
+//   api
+//     .getUser()
+//     .then(user => {
+//       if (!user) return;
+//       console.log('user : ' + user.properties.lastName)
+//       $("#lastName").text(user.properties.lastName);
+//     }, "json");
+// }
 
 
-function search() {
-  var query = $("#search").find("input[name=search]").val();
-  console.log("requete : " + query)
-  api
-    .getProcess(query)
-    .then(p => {
-      if (!p) return;
-      showProcess(query)
-    })
-}
+// function search() {
+//   var query = $("#search").find("input[name=search]").val();
+//   console.log("requete : " + query)
+//   api
+//     .getProcess(query)
+//     .then(p => {
+//       if (!p) return;
+//       showProcess(query)
+//     })
+// }
+
 function usedOpeInit() {
   api.getOperations().then(p => {
     var $list = $("#usedOpeDropdown")
